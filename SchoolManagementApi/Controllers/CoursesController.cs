@@ -25,10 +25,11 @@ namespace SchoolManagementApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Course>>> GetCourse()
         {
-          if (_context.Course == null)
-          {
-              return NotFound();
-          }
+            if (_context.Course == null)
+            {
+                return NotFound();
+            }
+            // ArgumentNullException.ThrowIfNull(nameof(Course));
             return await _context.Course.ToListAsync();
         }
 

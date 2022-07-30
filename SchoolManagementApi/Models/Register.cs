@@ -6,6 +6,6 @@ namespace SchoolManagementApi.Models;
 public class Register : IdentityUser
 {
     [Required]
-    public override string? Email { get; set; }
+    public override string Email { get; set; } = default!;
     
 }

@@ -1,10 +1,25 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SchoolManagementApi.Data;
+using SchoolManagementApi.Models;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<SchoolManagementApiContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SchoolManagementApiContext") ?? throw new InvalidOperationException("Connection string 'SchoolManagementApiContext' not found.")));
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<SchoolManagementApiContext>();
+builder.Services.AddIdentityCore<Register>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+    options.Password.RequireDigit = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequiredLength = 6;
+})
+    .AddEntityFrameworkStores<SchoolManagementApiContext>();
 
 // Add services to the container.
 
