@@ -1,8 +1,10 @@
-﻿namespace SchoolManagementApi.Models;
+﻿using SchoolManagementApi.Repository;
 
-public class Course
+namespace SchoolManagementApi.Models;
+
+
+public class Course : BaseEntity
 {
-    public Guid Id { get; set; }
     public string Title { get; set; } = default!;
     public string Code { get; set; } = default!;
     public int CreditUnit { get; set; }

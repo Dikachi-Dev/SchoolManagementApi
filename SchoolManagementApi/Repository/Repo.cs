@@ -15,10 +15,9 @@ namespace SchoolManagementApi.Repository
         }
         public async Task<T> Get(Guid id)
         {
-            ArgumentNullException.ThrowIfNull(id);
-            var result = await entities.SingleOrDefaultAsync(i => i.Id == id);
-            ArgumentNullException.ThrowIfNull(result);
-            return result;
+            return await entities.SingleOrDefaultAsync(i => i.Id == id);
+            
+            
         }
         public async Task<IEnumerable<T>> GetAll()
         {
@@ -26,24 +25,22 @@ namespace SchoolManagementApi.Repository
         }
         public async Task<T> GetByFilter(string filter)
         {
-            ArgumentNullException.ThrowIfNull(filter);
-            var result = await  entities.FindAsync(filter);
-            ArgumentNullException.ThrowIfNull(result);
-            return result;
+            
+            return await  entities.FindAsync(filter);
+            
+            
         }
         public async Task Create(T entity)
-        {
-            ArgumentNullException.ThrowIfNull(entity);
+        {           
             await context.AddAsync(entity);
         }
 
-        public async Task Delete(Guid id)
+        public  void Delete(T entity)
         {
             
-            ArgumentNullException.ThrowIfNull(id);
-            var result = await Get(id);
-            ArgumentNullException.ThrowIfNull(result);
-            entities.Remove(result);           
+            
+            
+             entities.Remove(entity);           
         }
 
 
@@ -52,11 +49,11 @@ namespace SchoolManagementApi.Repository
             await context.SaveChangesAsync();
         }
 
-        public async Task Update(T entity)
+        public  void Update(T entity)
         {
-            ArgumentNullException.ThrowIfNull(entity);
+            
             entities.Update(entity);
-            await Save();
+            //await Save();
         }
     }
 }

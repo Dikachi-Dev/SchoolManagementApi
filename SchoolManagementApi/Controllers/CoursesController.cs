@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SchoolManagementApi.Data;
 using SchoolManagementApi.Models;
+using SchoolManagementApi.Repository;
 
 namespace SchoolManagementApi.Controllers
 {
@@ -14,41 +15,40 @@ namespace SchoolManagementApi.Controllers
     [ApiController]
     public class CoursesController : ControllerBase
     {
-        private readonly SchoolManagementApiContext _context;
+        private readonly IRepo<Course> repo;
 
-        public CoursesController(SchoolManagementApiContext context)
+        public CoursesController(IRepo<Course> repo)
         {
-            _context = context;
+            this.repo = repo;
         }
 
         // GET: api/Courses
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Course>>> GetCourse()
         {
-            if (_context.Course == null)
+           
+            var course = await repo.GetAll();
+            if (course == null)
             {
                 return NotFound();
             }
-            // ArgumentNullException.ThrowIfNull(nameof(Course));
-            return await _context.Course.ToListAsync();
+            return Ok(course);  
+            
+            
         }
 
         // GET: api/Courses/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Course>> GetCourse(Guid id)
         {
-          if (_context.Course == null)
-          {
-              return NotFound();
-          }
-            var course = await _context.Course.FindAsync(id);
-
+            ArgumentNullException.ThrowIfNull(id);
+            var course = await repo.Get(id);
             if (course == null)
             {
                 return NotFound();
             }
-
-            return course;
+            return Ok(course);
+          
         }
 
         // PUT: api/Courses/5
@@ -60,26 +60,10 @@ namespace SchoolManagementApi.Controllers
             {
                 return BadRequest();
             }
-
-            _context.Entry(course).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CourseExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            repo.Update(course);
+            await repo.Save();
+            return Ok(course);
+           
         }
 
         // POST: api/Courses
@@ -87,13 +71,9 @@ namespace SchoolManagementApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Course>> PostCourse(Course course)
         {
-          if (_context.Course == null)
-          {
-              return Problem("Entity set 'SchoolManagementApiContext.Course'  is null.");
-          }
-            _context.Course.Add(course);
-            await _context.SaveChangesAsync();
-
+          
+            await repo.Create(course);
+            await repo.Save();
             return CreatedAtAction("GetCourse", new { id = course.Id }, course);
         }
 
@@ -101,25 +81,30 @@ namespace SchoolManagementApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCourse(Guid id)
         {
-            if (_context.Course == null)
-            {
-                return NotFound();
-            }
-            var course = await _context.Course.FindAsync(id);
+            ArgumentNullException.ThrowIfNull(id);
+
+            var course = await repo.Get(id);
             if (course == null)
             {
                 return NotFound();
             }
 
-            _context.Course.Remove(course);
-            await _context.SaveChangesAsync();
+            repo.Delete(course);
+            await repo.Save();
 
             return NoContent();
         }
 
-        private bool CourseExists(Guid id)
+        public async Task<IActionResult> FindCourse(string key)
         {
-            return (_context.Course?.Any(e => e.Id == id)).GetValueOrDefault();
+            ArgumentNullException.ThrowIfNull(key);
+            var course = await repo.GetByFilter(key);
+            if (course == null)
+            {
+                return NotFound();
+            }
+            return Ok(course);
+
         }
     }
 }
